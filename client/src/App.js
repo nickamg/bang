@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import logo from './logo.svg';
+import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
 import './App.css';
 import io from 'socket.io-client';
 import LoginScreen from './LoginScreen/LoginScreen';
@@ -15,7 +14,11 @@ class App extends Component {
     super(props);
     this.state = {
       socket: io(),
-      players: []
+      playerName: '',
+      loggedIn: false,
+      roomName: '',
+      joinedRoom: false,
+      players: [],
     }
   }
 
@@ -27,6 +30,26 @@ class App extends Component {
     this.state.socket.on(event, handler);
   }
 
+  handleChange = (event) => {
+    this.setState({ [event.target.name]: event.target.value });
+  }
+
+  handleLoginSubmit = (event) => {
+    if(this.state.playerName.length > 0) {
+        this.setState({ loggedIn: true });
+        this.emitter('addPlayer', this.state.playerName.trim())
+        event.preventDefault();
+    }
+  }
+
+  handleRoomSubmit = (event) => {
+    if(this.state.roomName.length > 0) {
+      this.setState({ joinedRoom: true });
+      this.emitter('createRoom', this.state.roomName.trim())
+      event.preventDefault();
+    }
+}
+
   updatePlayers = () => {
     //TODO Update players state for gameplay
   }
@@ -34,9 +57,21 @@ class App extends Component {
   render() {
     return (
       <Router>
-        <Route exact path="/" render={() => <LoginScreen emitter={this.emitter} />} />
+        <Route exact path="/" render={() => {
+          if(this.state.loggedIn) {
+            return <Redirect to="/select" />
+          } else {
+            return <LoginScreen playerName={this.state.playerName} handleSubmit={this.handleLoginSubmit} handleChange={this.handleChange} />
+          }
+        }}/>
         <Route exact path="/select" component={SelectionScreen} />
-        <Route exact path="/create" render={() => <CreateScreen emitter={this.emitter} />} />
+        <Route exact path="/create" render={() => {
+          if(this.state.joinedRoom) {
+            return <Redirect to="/lobby" />
+          } else {
+            return <CreateScreen roomName={this.state.roomName} handleSubmit={this.handleRoomSubmit} handleChange={this.handleChange} />
+          }
+        }} />
         <Route exact path="/join" render={() => <JoinScreen emitter={this.emitter} listener={this.listener} />} />
         <Route exact path="/lobby" render={() => <LobbyScreen emitter={this.emitter} listener={this.listener}/>} />
       </Router>
