@@ -24,7 +24,8 @@ export default class LobbyScreen extends Component {
         return (
             <div>
                 LOBBY SCREEN
-                Players: ******
+                Players:
+                {this.renderPlayers()}
             </div>
         )
     }
