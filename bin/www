@@ -111,15 +111,15 @@ function filteredRooms() {
  * @param roomName Name of the room to be joined.
  */
 function joinRoom(roomName) {
-  socket.join(roomName);
-  io.in(roomName).emit('joinedRoom', joinedRoom)
+  this.join(roomName);
+  io.in(roomName).emit('joinedRoom', joinedRoom(roomName))
 }
 
 /**
  * Sends updated player data to all the room participants when a new player joins it
  * @returns [{playerName}]
  */
-function joinedRoom() {
+function joinedRoom(roomName) {
   let players = []
   for (let socket in io.sockets.adapter.rooms[roomName].sockets) {
     players.push({

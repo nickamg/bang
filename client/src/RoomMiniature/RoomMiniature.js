@@ -2,13 +2,9 @@ import React, { Component } from 'react'
 import './RoomMiniature'
 
 export default class RoomMiniature extends Component {
-    handleClick = () => {
-        alert('joined' + this.props.room.roomName)
-    }
-
     render() {
         return (
-            <div className="RoomMiniature" onClick={this.handleClick}>
+            <div className="RoomMiniature" onClick={() => this.props.joinRoom(this.props.room.roomName)}>
                 Name: {this.props.room.roomName} | Players: {this.props.room.numPlayers}
             </div>
         )

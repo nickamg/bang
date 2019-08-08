@@ -13,6 +13,13 @@ export default class LobbyScreen extends Component {
         this.props.listener('joined')
     }
 
+    /**
+     * Renders the players list.
+     */
+    renderPlayers = () => {
+        return this.props.players.map((player) => <p>{player.playerName}</p>)
+    }
+
     render() {
         return (
             <div>

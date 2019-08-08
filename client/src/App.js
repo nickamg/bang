@@ -18,6 +18,7 @@ class App extends Component {
       loggedIn: false,
       roomName: '',
       joinedRoom: false,
+      rooms: [],
       players: [],
     }
   }
@@ -36,44 +37,81 @@ class App extends Component {
 
   handleLoginSubmit = (event) => {
     if(this.state.playerName.length > 0) {
+        this.emitter('addPlayer', this.state.playerName.trim());
         this.setState({ loggedIn: true });
-        this.emitter('addPlayer', this.state.playerName.trim())
         event.preventDefault();
     }
   }
 
   handleRoomSubmit = (event) => {
     if(this.state.roomName.length > 0) {
+      this.emitter('createRoom', this.state.roomName.trim());
       this.setState({ joinedRoom: true });
-      this.emitter('createRoom', this.state.roomName.trim())
       event.preventDefault();
     }
-}
+  }
+
+  handleJoinRoom = (roomName) => {
+    this.emitter('joinRoom', roomName);
+    this.setState({ joinedRoom: true });
+  }
+
+  /**
+   * Emits an event to trigger a response from the server.
+   */
+  askForRooms = () => {
+    this.emitter('listRooms');
+  }
+
+  /**
+   * Listens for a list of all the playable rooms.
+   */
+  listenForRooms = () => {
+    this.listener('listRooms', this.updateRooms)
+  }
+
+  /**
+   * Updates the component's state with the new rooms list.
+   * @returns [ room: { roomName, numPlayers } ]
+   */
+  updateRooms = rooms => {
+    this.emitter('logger', 'Rooms received' + JSON.stringify(rooms));
+    this.setState({ rooms });
+  }
 
   updatePlayers = () => {
     //TODO Update players state for gameplay
   }
 
+  /**
+   * Chooses the right path to display based on a set condition.
+   * @param condition The condition that chooses if true to redirect, and if false to render the component associated to the current path.
+   * @param redirectUrl The url to redirect.
+   * @param component The component to be rendered in this path.
+   */
+  renderScreen = (condition, redirectUrl, component) => {
+    if(condition) {
+      return <Redirect to={redirectUrl} />
+    } else {
+      return component;
+    }
+  }
+
   render() {
     return (
       <Router>
-        <Route exact path="/" render={() => {
-          if(this.state.loggedIn) {
-            return <Redirect to="/select" />
-          } else {
-            return <LoginScreen playerName={this.state.playerName} handleSubmit={this.handleLoginSubmit} handleChange={this.handleChange} />
-          }
-        }}/>
+        <Route exact path="/" render={() => this.renderScreen(this.state.loggedIn, '/select', 
+          <LoginScreen playerName={this.state.playerName} handleSubmit={this.handleLoginSubmit} handleChange={this.handleChange} />
+          )}/>
         <Route exact path="/select" component={SelectionScreen} />
-        <Route exact path="/create" render={() => {
-          if(this.state.joinedRoom) {
-            return <Redirect to="/lobby" />
-          } else {
-            return <CreateScreen roomName={this.state.roomName} handleSubmit={this.handleRoomSubmit} handleChange={this.handleChange} />
-          }
-        }} />
-        <Route exact path="/join" render={() => <JoinScreen emitter={this.emitter} listener={this.listener} />} />
-        <Route exact path="/lobby" render={() => <LobbyScreen emitter={this.emitter} listener={this.listener}/>} />
+        <Route exact path="/create" render={() => this.renderScreen(this.state.joinedRoom, '/lobby', 
+          <CreateScreen roomName={this.state.roomName} handleSubmit={this.handleRoomSubmit} handleChange={this.handleChange} />
+          )} />
+        <Route exact path="/join" render={() => this.renderScreen(this.state.joinedRoom, '/lobby',
+          <JoinScreen listenForRooms={this.listenForRooms} askForRooms={this.askForRooms} rooms={this.state.rooms} joinRoom={this.handleJoinRoom} />
+          )} />
+        <Route exact path="/lobby" render={() => <LobbyScreen emitter={this.emitter} listener={this.listener} players={this.state.players} />} />
+        <Route exact path="/game" render={() => <LobbyScreen emitter={this.emitter} listener={this.listener} />} />
       </Router>
     );
   }
