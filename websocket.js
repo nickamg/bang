@@ -1,13 +1,28 @@
-class IoUtils {
-  constructor(io) {
-    this.io = io;
-  }
+function io(server) {
+  const io = require('socket.io')(server);
+
+  /**
+   * Define socket.io events
+   */
+  io.on('connection', function (socket) {
+    console.log('New socket connected')
+    // Logger to keep track of client events
+    socket.on('logger', (msg) => console.log(msg));
+    // Adds that player name to his socket provided addedPlayer is false
+    socket.on('addPlayer', registerPlayer);
+    // Creates the room and joins the socket
+    socket.on('createRoom', createRoom);
+    // Joins a room and sends an updated player list to all participants
+    socket.on('joinRoom', joinRoom);
+    // Lists rooms
+    socket.on('listRooms', listRooms);
+  });
 
   /**
    * Adds the playerName attribute to the socket.
-   * @param name Nickname chosen by the user.
+   * @param name Nickname choosen by the user.
    */
-  registerPlayer = function(name) {
+  function registerPlayer(name) {
     this.playerName = name;
     console.log('Registered player: ' + this.playerName);
   }
@@ -16,7 +31,7 @@ class IoUtils {
    * Joins the socket into a new game room and notifies it existence to all listening sockets. If a room with the same name already exists it will throw an error.
    * @param name Name of the room to be created.
    */
-  createRoom = function(name) {
+  function createRoom(name) {
     if (io.sockets.adapter.rooms[name]) {
       this.emit('roomError', 'El nombre de la partida ya existe.')
     } else {
@@ -39,7 +54,7 @@ class IoUtils {
    * Configures the newly created room.
    * @param room The room the user is creating available in io.sockets.adapter.rooms[roomName].
    */
-  configureRoom = function(room) {
+  function configureRoom(room) {
     room.isPlayable = true;
     room.hasStarted = false;
   }
@@ -48,7 +63,7 @@ class IoUtils {
    * Emits an event witch broadcasts all the playable rooms in an array.
    * @returns [{roomName, numPlayers}]
    */
-  listRooms = function() {
+  function listRooms() {
     this.emit('listRooms', filteredRooms())
   }
 
@@ -56,7 +71,7 @@ class IoUtils {
    * Filters all the available rooms to just game rooms in an array and returns it.
    * @returns [{roomName, numPlayers}]
    */
-  filteredRooms = function() {
+  function filteredRooms() {
     let rooms = [];
     for (let room in io.sockets.adapter.rooms) {
       if (io.sockets.adapter.rooms[room].isPlayable) {
@@ -73,16 +88,16 @@ class IoUtils {
    * Joins the provided room that matches the roomName, and sends updated player data to all the room participants.
    * @param roomName Name of the room to be joined.
    */
-  joinRoom = function(roomName) {
+  function joinRoom(roomName) {
     this.join(roomName);
-    io.in(roomName).emit('joinedRoom', returnRoomPlayers(roomName))
+    io.in(roomName).emit('joinedRoom', joinedRoom(roomName))
   }
 
   /**
    * Sends updated player data to all the room participants when a new player joins it
    * @returns [{playerName}]
    */
-  returnRoomPlayers = function(roomName) {
+  function joinedRoom(roomName) {
     let players = []
     for (let socket in io.sockets.adapter.rooms[roomName].sockets) {
       players.push({
@@ -91,6 +106,8 @@ class IoUtils {
     }
     return players
   }
+
+  return io;
 }
 
-module.exports = IoUtils;
+module.exports = io;

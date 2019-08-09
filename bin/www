@@ -16,30 +16,11 @@ const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
- * Create HTTP server and initialize socket.io
+ * Create HTTP server and initialize the websocket
  */
 
 const server = http.createServer(app);
-const io = require('socket.io')(server);
-const event = require('../IoUtils')(io);
-
-/**
- * Define socket.io events
- */
-
-io.on('connection', function (socket) {
-  console.log('New socket connected')
-  // Logger to keep track of client events
-  socket.on('logger', (msg) => console.log(msg));
-  // Adds that player name to his socket provided addedPlayer is false
-  socket.on('addPlayer', event.registerPlayer);
-  // Creates the room and joins the socket
-  socket.on('createRoom', event.createRoom);
-  // Joins a room and sends an updated player list to all participants
-  socket.on('joinRoom', event.joinRoom);
-  // Lists rooms
-  socket.on('listRooms', event.listRooms);
-});
+const websocket = require('../websocket')(server);
 
 /**
  * Listen on provided port, on all network interfaces.
