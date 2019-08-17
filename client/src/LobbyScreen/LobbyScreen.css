@@ -1,4 +1,4 @@
-.LoginScreen {
+.LobbyScreen {
     background-color: #161515;
     min-height: 100vh;
     min-width: 100vw;
@@ -9,14 +9,4 @@
     font-size: calc(10px + 2vmin);
     color: white;
     text-align: center;
-}
-
-.Label {
-    display: flex;
-    flex-direction: column;
-}
-
-.Input {
-    margin: 20px;
-    font-size: 24px;
 }

@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import './LobbyScreen'
 
 export default class LobbyScreen extends Component {
     componentDidMount() {
@@ -15,7 +16,7 @@ export default class LobbyScreen extends Component {
 
     render() {
         return (
-            <div>
+            <div className="LobbyScreen">
                 LOBBY SCREEN
                 Players:
                 {this.renderPlayers()}
