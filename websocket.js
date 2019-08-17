@@ -14,8 +14,21 @@ function io(server) {
     socket.on('createRoom', createRoom);
     // Joins a room and sends an updated player list to all participants
     socket.on('joinRoom', joinRoom);
-    // Lists rooms
+    // Sends an updated list of rooms to the client
     socket.on('listRooms', listRooms);
+    socket.on('playerReady', (roomName) => {
+      let start = true;
+      socket.playerReady = true;
+      getRoomPlayers(roomName).forEach(element => {
+        if(!element.playerReady) {
+          start = false;
+        }
+      });
+      if(start) {
+        io.sockets.adapter.rooms[roomName].hasStarted = true;
+        socket.emit('startGame', start);
+      }
+    })
   });
 
   /**
@@ -90,18 +103,20 @@ function io(server) {
    */
   function joinRoom(roomName) {
     this.join(roomName);
-    io.in(roomName).emit('joinedRoom', joinedRoom(roomName))
+    this.broadcast.emit('listRooms', filteredRooms());
+    io.in(roomName).emit('updatePlayers', getRoomPlayers(roomName))
   }
 
   /**
-   * Sends updated player data to all the room participants when a new player joins it
+   * Sends updated player data to all the room participants
    * @returns [{playerName}]
    */
-  function joinedRoom(roomName) {
+  function getRoomPlayers(roomName) {
     let players = []
     for (let socket in io.sockets.adapter.rooms[roomName].sockets) {
       players.push({
-        playerName: io.sockets.sockets[socket].playerName
+        playerName: io.sockets.sockets[socket].playerName,
+        playerReady: io.sockets.sockets[socket].playerReady,
       });
     }
     return players

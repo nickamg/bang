@@ -52,8 +52,7 @@ class App extends Component {
   }
 
   handleJoinRoom = (roomName) => {
-    this.emitter('joinRoom', roomName);
-    this.setState({ joinedRoom: true });
+    this.setState({ roomName, joinedRoom: true });
   }
 
   /**
@@ -79,8 +78,27 @@ class App extends Component {
     this.setState({ rooms });
   }
 
-  updatePlayers = () => {
-    //TODO Update players state for gameplay
+  /**
+   * Emits an event to trigger a response from the server.
+   */
+  askForPlayers = () => {
+    this.emitter('joinRoom', this.state.roomName);
+  }
+
+  /**
+   * Listens for an update on the player's list.
+   */
+  listenForPlayers = () => {
+    this.listener('updatePlayers', this.updatePlayers)
+  }
+
+  /**
+   * Updates the component's state with the new rooms list.
+   * @returns [ room: { roomName, numPlayers } ]
+   */
+  updatePlayers = players => {
+    this.emitter('logger', 'Players received' + JSON.stringify(players));
+    this.setState({ players })
   }
 
   /**
@@ -97,6 +115,14 @@ class App extends Component {
     }
   }
 
+  playerReady = () => {
+    
+  }
+
+  playerUnready = () => {
+    
+  }
+
   render() {
     return (
       <Router>
@@ -110,7 +136,7 @@ class App extends Component {
         <Route exact path="/join" render={() => this.renderScreen(this.state.joinedRoom, '/lobby',
           <JoinScreen listenForRooms={this.listenForRooms} askForRooms={this.askForRooms} rooms={this.state.rooms} joinRoom={this.handleJoinRoom} />
           )} />
-        <Route exact path="/lobby" render={() => <LobbyScreen emitter={this.emitter} listener={this.listener} players={this.state.players} />} />
+        <Route exact path="/lobby" render={() => <LobbyScreen listenForPlayers={this.listenForPlayers} askForPlayers={this.askForPlayers} players={this.state.players} />} />
         <Route exact path="/game" render={() => <LobbyScreen emitter={this.emitter} listener={this.listener} />} />
       </Router>
     );
