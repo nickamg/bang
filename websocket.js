@@ -16,6 +16,7 @@ function io(server) {
     socket.on('joinRoom', joinRoom);
     // Sends an updated list of rooms to the client
     socket.on('listRooms', listRooms);
+    // If all players are ready, it will start the game
     socket.on('playerReady', (roomName) => {
       let start = true;
       socket.playerReady = true;
@@ -28,6 +29,10 @@ function io(server) {
         io.sockets.adapter.rooms[roomName].hasStarted = true;
         socket.emit('startGame', start);
       }
+    })
+    socket.on('disconnect', () => {
+      socket.broadcast.emit('listRooms', filteredRooms());
+      socket.to(socket.rooms[socket.rooms.length - 1]).emit() //gonna send the updated list of players
     })
   });
 
