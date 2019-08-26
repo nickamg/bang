@@ -8,8 +8,8 @@ function io(server) {
     console.log('New socket connected')
     // Logger to keep track of client events
     socket.on('logger', (msg) => console.log(msg));
-    // Adds that player name to his socket provided addedPlayer is false
-    socket.on('addPlayer', registerPlayer);
+    // Adds that player name to his socket
+    socket.on('addPlayer', addPlayer);
     // Creates the room and joins the socket
     socket.on('createRoom', createRoom);
     // Joins a room and sends an updated player list to all participants
@@ -30,17 +30,14 @@ function io(server) {
         socket.emit('startGame', start);
       }
     })
-    socket.on('disconnect', () => {
-      socket.broadcast.emit('listRooms', filteredRooms());
-      socket.to(socket.rooms[socket.rooms.length - 1]).emit() //gonna send the updated list of players
-    })
+    socket.on('closingConnection', closingConnection)
   });
 
   /**
    * Adds the playerName attribute to the socket.
    * @param name Nickname choosen by the user.
    */
-  function registerPlayer(name) {
+  function addPlayer(name) {
     this.playerName = name;
     console.log('Registered player: ' + this.playerName);
   }
@@ -51,14 +48,14 @@ function io(server) {
    */
   function createRoom(name) {
     if (io.sockets.adapter.rooms[name]) {
-      this.emit('roomError', 'El nombre de la partida ya existe.')
+      console.log('[ERROR] El nombre de la partida ya existe, deberías notificárselo al usuario D:')
     } else {
       this.join(name, (err) => {
         if (err) {
           console.log(err);
         } else {
           configureRoom(io.sockets.adapter.rooms[name]);
-          this.broadcast.emit('listRooms', filteredRooms());
+          this.broadcast.emit('listRooms', playableRooms());
           console.log(
             'Currently available rooms: ' + JSON.stringify(io.sockets.adapter.rooms) +
             '\n' + this.playerName + "'s rooms: " + JSON.stringify(this.rooms)
@@ -75,6 +72,8 @@ function io(server) {
   function configureRoom(room) {
     room.isPlayable = true;
     room.hasStarted = false;
+    room.playerTurn = 1;
+    room.cards;
   }
 
   /**
@@ -82,14 +81,14 @@ function io(server) {
    * @returns [{roomName, numPlayers}]
    */
   function listRooms() {
-    this.emit('listRooms', filteredRooms())
+    this.emit('listRooms', playableRooms())
   }
 
   /**
    * Filters all the available rooms to just game rooms in an array and returns it.
    * @returns [{roomName, numPlayers}]
    */
-  function filteredRooms() {
+  function playableRooms() {
     let rooms = [];
     for (let room in io.sockets.adapter.rooms) {
       if (io.sockets.adapter.rooms[room].isPlayable) {
@@ -108,7 +107,7 @@ function io(server) {
    */
   function joinRoom(roomName) {
     this.join(roomName);
-    this.broadcast.emit('listRooms', filteredRooms());
+    this.broadcast.emit('listRooms', playableRooms());
     io.in(roomName).emit('updatePlayers', getRoomPlayers(roomName))
   }
 
@@ -125,6 +124,24 @@ function io(server) {
       });
     }
     return players
+  }
+
+  function closingConnection(roomName) {
+    this.leave(roomName);
+    this.broadcast.emit('listRooms', playableRooms());
+    this.to(roomName).emit('updatePlayers', getRoomPlayers(roomName));
+  }
+
+  function updateGame(roomName) {
+    let gameData;
+    for(let socket in io.sockets.adapter.rooms[roomName].sockets) {
+      gameData = [{currentPlayer}, {players}]
+      io.to(socket).emit('updateState', )
+    }
+  }
+
+  function getSocketState(socketId) {
+    
   }
 
   return io;

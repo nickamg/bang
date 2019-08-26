@@ -20,7 +20,16 @@ class App extends Component {
       joinedRoom: false,
       rooms: [],
       players: [],
+      cards: [],
+      playerReady: false,
+      waitingOponentAction: false,
     }
+  }
+
+  componentDidMount() {
+    window.addEventListener('beforeunload', () => {
+      this.handleWindowClose();
+    });
   }
 
   emitter = (event, message) => {
@@ -29,6 +38,10 @@ class App extends Component {
 
   listener = (event, handler) => {
     this.state.socket.on(event, handler);
+  }
+
+  handleWindowClose = () => {
+    this.emitter('closingConnection', this.state.roomName);
   }
 
   handleChange = (event) => {
