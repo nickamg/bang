@@ -19,6 +19,7 @@ export default class LobbyScreen extends Component {
             <div className="LobbyScreen">
                 LOBBY SCREEN
                 Players:
+                <p>{this.props.playerName}</p>
                 {this.renderPlayers()}
                 <button>Listo</button>
             </div>

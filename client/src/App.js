@@ -22,14 +22,15 @@ class App extends Component {
       players: [],
       cards: [],
       playerReady: false,
+      playerTurn: false,
       waitingOponentAction: false,
     }
   }
 
   componentDidMount() {
-    window.addEventListener('beforeunload', () => {
-      this.handleWindowClose();
-    });
+    window.addEventListener('beforeunload', this.handleWindowClose);
+    this.listener('updateGameState', (state) => this.setState({ players: state.players }));
+    this.listener('listRooms', this.updateRooms);
   }
 
   emitter = (event, message) => {
@@ -76,13 +77,6 @@ class App extends Component {
   }
 
   /**
-   * Listens for a list of all the playable rooms.
-   */
-  listenForRooms = () => {
-    this.listener('listRooms', this.updateRooms)
-  }
-
-  /**
    * Updates the component's state with the new rooms list.
    * @returns [ room: { roomName, numPlayers } ]
    */
@@ -110,8 +104,8 @@ class App extends Component {
    * @returns [ room: { roomName, numPlayers } ]
    */
   updatePlayers = players => {
-    this.emitter('logger', 'Players received' + JSON.stringify(players));
     this.setState({ players })
+    this.state.socket.off('listRooms')
   }
 
   /**
@@ -149,7 +143,7 @@ class App extends Component {
         <Route exact path="/join" render={() => this.renderScreen(this.state.joinedRoom, '/lobby',
           <JoinScreen listenForRooms={this.listenForRooms} askForRooms={this.askForRooms} rooms={this.state.rooms} joinRoom={this.handleJoinRoom} />
           )} />
-        <Route exact path="/lobby" render={() => <LobbyScreen listenForPlayers={this.listenForPlayers} askForPlayers={this.askForPlayers} players={this.state.players} />} />
+        <Route exact path="/lobby" render={() => <LobbyScreen listenForPlayers={this.listenForPlayers} askForPlayers={this.askForPlayers} players={this.state.players}  playerName={this.state.playerName}/>} />
         <Route exact path="/game" render={() => <LobbyScreen emitter={this.emitter} listener={this.listener} />} />
       </Router>
     );

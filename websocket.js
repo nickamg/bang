@@ -20,7 +20,7 @@ function io(server) {
     socket.on('playerReady', (roomName) => {
       let start = true;
       socket.playerReady = true;
-      getRoomPlayers(roomName).forEach(element => {
+      getRoomPlayersState(roomName).forEach(element => {
         if(!element.playerReady) {
           start = false;
         }
@@ -39,6 +39,16 @@ function io(server) {
    */
   function addPlayer(name) {
     this.playerName = name;
+    this.playerNumber;
+    this.life;
+    this.role;
+    this.character;
+    this.distance = 1;
+    this.viewDistance = 1;
+    this.weapon = 0;
+    this.handCards = [];
+    this.playedCards = [];
+    this.playerReady = false;
     console.log('Registered player: ' + this.playerName);
   }
 
@@ -108,40 +118,72 @@ function io(server) {
   function joinRoom(roomName) {
     this.join(roomName);
     this.broadcast.emit('listRooms', playableRooms());
-    io.in(roomName).emit('updatePlayers', getRoomPlayers(roomName))
+    //io.in(roomName).emit('updatePlayers', updateGame(roomName));
+    updateGame(roomName);
   }
 
   /**
    * Sends updated player data to all the room participants
    * @returns [{playerName}]
    */
-  function getRoomPlayers(roomName) {
-    let players = []
-    for (let socket in io.sockets.adapter.rooms[roomName].sockets) {
-      players.push({
-        playerName: io.sockets.sockets[socket].playerName,
-        playerReady: io.sockets.sockets[socket].playerReady,
-      });
+  function getRoomPlayersState(roomName) {
+    let players = [];
+    if(io.sockets.adapter.rooms[roomName]) {
+      for(let socket in io.sockets.adapter.rooms[roomName].sockets) {
+        players.push({
+          socketId: socket,
+          playerName: io.sockets.sockets[socket].playerName,
+          playerNumber: io.sockets.sockets[socket].playerNumber,
+          life: io.sockets.sockets[socket].life,
+          role: io.sockets.sockets[socket].role,
+          character: io.sockets.sockets[socket].character,
+          distance: io.sockets.sockets[socket].distance,
+          viewDistance: io.sockets.sockets[socket].viewDistance,
+          weapon: io.sockets.sockets[socket].weapon,
+          handCards: io.sockets.sockets[socket].handCards,
+          playedCards: io.sockets.sockets[socket].playedCards,
+          playerReady: io.sockets.sockets[socket].playerReady,
+        });
+      }
     }
     return players
+  }
+
+  function updateGame(roomName) {
+    let gameData = {};
+    let players = [];
+    let roomPlayers = getRoomPlayersState(roomName);
+    if(io.sockets.adapter.rooms[roomName]) {
+      for(let socket in io.sockets.adapter.rooms[roomName].sockets) {
+        gameData.player = roomPlayers[socket];
+        for(player of roomPlayers) {
+          if(player.socketId != socket) {
+            players.push({
+              playerName: player.playerName,
+              playerNumber: player.playerNumber,
+              life: player.life,
+              role: player.role,
+              character: player.character,
+              distance: player.distance,
+              viewDistance: player.viewDistance,
+              weapon: player.weapon,
+              handCards: player.handCards.length,
+              playedCards: player.playedCards,
+              playerReady: player.playerReady
+            });
+          }
+        }
+        gameData.players = players;
+        io.to(socket).emit('updateGameState', gameData);
+        players = [];
+      }
+    }
   }
 
   function closingConnection(roomName) {
     this.leave(roomName);
     this.broadcast.emit('listRooms', playableRooms());
-    this.to(roomName).emit('updatePlayers', getRoomPlayers(roomName));
-  }
-
-  function updateGame(roomName) {
-    let gameData;
-    for(let socket in io.sockets.adapter.rooms[roomName].sockets) {
-      gameData = [{currentPlayer}, {players}]
-      io.to(socket).emit('updateState', )
-    }
-  }
-
-  function getSocketState(socketId) {
-    
+    updateGame(roomName);
   }
 
   return io;
