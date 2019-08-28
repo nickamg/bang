@@ -6,16 +6,10 @@ function io(server) {
    */
   io.on('connection', function (socket) {
     console.log('New socket connected')
-    // Logger to keep track of client events
     socket.on('logger', (msg) => console.log(msg));
-    // Adds that player name to his socket
     socket.on('addPlayer', addPlayer);
-    // Creates the room and joins the socket
     socket.on('createRoom', createRoom);
-    // Joins a room and sends an updated player list to all participants
     socket.on('joinRoom', joinRoom);
-    // Sends an updated list of rooms to the client
-    socket.on('listRooms', listRooms);
     // If all players are ready, it will start the game
     socket.on('playerReady', (roomName) => {
       let start = true;
@@ -49,23 +43,25 @@ function io(server) {
     this.handCards = [];
     this.playedCards = [];
     this.playerReady = false;
+    listRooms();
     console.log('Registered player: ' + this.playerName);
   }
 
   /**
    * Joins the socket into a new game room and notifies it existence to all listening sockets. If a room with the same name already exists it will throw an error.
-   * @param name Name of the room to be created.
+   * @param {string} roomName Name of the room to be created.
    */
-  function createRoom(name) {
-    if (io.sockets.adapter.rooms[name]) {
+  function createRoom(roomName) {
+    if (io.sockets.adapter.rooms[roomName]) {
       console.log('[ERROR] El nombre de la partida ya existe, deberías notificárselo al usuario D:')
     } else {
-      this.join(name, (err) => {
+      this.join(roomName, (err) => {
         if (err) {
           console.log(err);
         } else {
-          configureRoom(io.sockets.adapter.rooms[name]);
-          this.broadcast.emit('listRooms', playableRooms());
+          configureRoom(io.sockets.adapter.rooms[roomName]);
+          listRooms();
+          updateGameState(roomName);
           console.log(
             'Currently available rooms: ' + JSON.stringify(io.sockets.adapter.rooms) +
             '\n' + this.playerName + "'s rooms: " + JSON.stringify(this.rooms)
@@ -91,14 +87,14 @@ function io(server) {
    * @returns [{roomName, numPlayers}]
    */
   function listRooms() {
-    this.emit('listRooms', playableRooms())
+    io.emit('listRooms', getPlayableRooms())
   }
 
   /**
    * Filters all the available rooms to just game rooms in an array and returns it.
    * @returns [{roomName, numPlayers}]
    */
-  function playableRooms() {
+  function getPlayableRooms() {
     let rooms = [];
     for (let room in io.sockets.adapter.rooms) {
       if (io.sockets.adapter.rooms[room].isPlayable) {
@@ -113,18 +109,18 @@ function io(server) {
 
   /**
    * Joins the provided room that matches the roomName, and sends updated player data to all the room participants.
-   * @param roomName Name of the room to be joined.
+   * @param {string} roomName Name of the room to be joined.
    */
   function joinRoom(roomName) {
     this.join(roomName);
-    this.broadcast.emit('listRooms', playableRooms());
-    //io.in(roomName).emit('updatePlayers', updateGame(roomName));
-    updateGame(roomName);
+    this.playerNumber = io.sockets.adapter.rooms[roomName].length;
+    listRooms();
+    updateGameState(roomName);
   }
 
   /**
-   * Sends updated player data to all the room participants
-   * @returns [{playerName}]
+   * Retrieves all the room's participants state in an array
+   * @param {string} roomName
    */
   function getRoomPlayersState(roomName) {
     let players = [];
@@ -149,7 +145,11 @@ function io(server) {
     return players
   }
 
-  function updateGame(roomName) {
+  /**
+   * Updates the game state for every player in a room
+   * @param {string} roomName 
+   */
+  function updateGameState(roomName) {
     let gameData = {};
     let players = [];
     let roomPlayers = getRoomPlayersState(roomName);
@@ -171,9 +171,12 @@ function io(server) {
               playedCards: player.playedCards,
               playerReady: player.playerReady
             });
+          } else {
+            gameData.player = player;
           }
         }
         gameData.players = players;
+        console.log(JSON.stringify(gameData));
         io.to(socket).emit('updateGameState', gameData);
         players = [];
       }
@@ -182,8 +185,8 @@ function io(server) {
 
   function closingConnection(roomName) {
     this.leave(roomName);
-    this.broadcast.emit('listRooms', playableRooms());
-    updateGame(roomName);
+    listRooms();
+    updateGameState(roomName);
   }
 
   return io;

@@ -9,6 +9,7 @@ export default class CreateScreen extends Component {
                     <label className="Label">
                         What is the room's name going to be?
                         <input
+                            autoFocus
                             type="text"
                             className="Input"
                             name="roomName"
