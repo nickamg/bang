@@ -9,6 +9,7 @@ export default class LoginScreen extends Component {
                     <label className="Label">
                         What is your name?
                         <input 
+                            autoFocus
                             type="text" 
                             className="Input" 
                             name="playerName"

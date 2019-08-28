@@ -2,14 +2,6 @@ import React, { Component } from 'react'
 import './LobbyScreen'
 
 export default class LobbyScreen extends Component {
-    componentDidMount() {
-        this.props.listenForPlayers();
-        this.props.askForPlayers();
-    }
-
-    /**
-     * Renders the players list.
-     */
     renderPlayers = () => {
         return this.props.players.map((player) => <p>{player.playerName}</p>)
     }
@@ -17,8 +9,8 @@ export default class LobbyScreen extends Component {
     render() {
         return (
             <div className="LobbyScreen">
-                LOBBY SCREEN
-                Players:
+                <h1>{this.props.roomName}</h1>
+                <p>{this.props.playerName}</p>
                 {this.renderPlayers()}
                 <button>Listo</button>
             </div>

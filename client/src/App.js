@@ -20,7 +20,17 @@ class App extends Component {
       joinedRoom: false,
       rooms: [],
       players: [],
+      cards: [],
+      playerReady: false,
+      playerTurn: false,
+      waitingOponentAction: false,
     }
+  }
+
+  componentDidMount() {
+    this.listener('updateGameState', (state) => this.setState({ players: state.players }));
+    this.listener('listRooms', (rooms) => this.setState({ rooms }));
+    window.addEventListener('beforeunload', () => this.emitter('closingConnection', this.state.roomName));
   }
 
   emitter = (event, message) => {
@@ -52,44 +62,8 @@ class App extends Component {
   }
 
   handleJoinRoom = (roomName) => {
-    this.setState({ roomName, joinedRoom: true });
-  }
-
-  /**
-   * Emits an event to trigger a response from the server.
-   */
-  askForRooms = () => {
-    this.emitter('listRooms');
-  }
-
-  /**
-   * Listens for a list of all the playable rooms.
-   */
-  listenForRooms = () => {
-    this.listener('listRooms', this.updateRooms)
-  }
-
-  /**
-   * Updates the component's state with the new rooms list.
-   * @returns [ room: { roomName, numPlayers } ]
-   */
-  updateRooms = rooms => {
-    this.emitter('logger', 'Rooms received' + JSON.stringify(rooms));
-    this.setState({ rooms });
-  }
-
-  /**
-   * Emits an event to trigger a response from the server.
-   */
-  askForPlayers = () => {
-    this.emitter('joinRoom', this.state.roomName);
-  }
-
-  /**
-   * Listens for an update on the player's list.
-   */
-  listenForPlayers = () => {
-    this.listener('updatePlayers', this.updatePlayers)
+    this.state.socket.off('listRooms');
+    this.setState({ roomName, joinedRoom: true }, () => this.emitter('joinRoom', this.state.roomName));
   }
 
   /**
@@ -97,7 +71,6 @@ class App extends Component {
    * @returns [ room: { roomName, numPlayers } ]
    */
   updatePlayers = players => {
-    this.emitter('logger', 'Players received' + JSON.stringify(players));
     this.setState({ players })
   }
 
@@ -134,9 +107,9 @@ class App extends Component {
           <CreateScreen roomName={this.state.roomName} handleSubmit={this.handleRoomSubmit} handleChange={this.handleChange} />
           )} />
         <Route exact path="/join" render={() => this.renderScreen(this.state.joinedRoom, '/lobby',
-          <JoinScreen listenForRooms={this.listenForRooms} askForRooms={this.askForRooms} rooms={this.state.rooms} joinRoom={this.handleJoinRoom} />
+          <JoinScreen rooms={this.state.rooms} joinRoom={this.handleJoinRoom} />
           )} />
-        <Route exact path="/lobby" render={() => <LobbyScreen listenForPlayers={this.listenForPlayers} askForPlayers={this.askForPlayers} players={this.state.players} />} />
+        <Route exact path="/lobby" render={() => <LobbyScreen roomName={this.state.roomName} players={this.state.players} playerName={this.state.playerName}/>} />
         <Route exact path="/game" render={() => <LobbyScreen emitter={this.emitter} listener={this.listener} />} />
       </Router>
     );
