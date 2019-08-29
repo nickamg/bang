@@ -1,23 +1,25 @@
 .SelectionScreen {
-    background-color: #161515;
+    background-color: #fffae4;
     min-height: 100vh;
     min-width: 100vw;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: calc(24px + 2vmin);
-    color: white;
+    font-size: 10vmin;
+    color: #352200;
     text-align: center;
 }
 
 .Link {
     text-decoration: none;
     margin: 33px;
+    padding: 10px 0px; 
     width: 80%;
     height: 60px;
-    border: solid white 5px;
-    border-radius: 20px;
+    border: solid #352200 4px;
+    color: #352200; 
+    border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
