@@ -1,21 +1,36 @@
 .CreateScreen {
-    background-color: #161515;
+    background-color: #fffae4;
     min-height: 100vh;
     min-width: 100vw;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+    font-size: 10vmin;
+    color: #352200;
     text-align: center;
 }
 
-.Label {
-    display: flex;
-    flex-direction: column;
+.Input {
+    margin-top: 20px;
+    width: 80%;
+    font-size: 10vmin;
+    text-align: center;
+    caret-color: #352200;
+    background-color: #fffae4;
+    border: none;
+    border-radius: 0;
+    border-bottom: solid #352200 4px;
+    align-self: center;
 }
 
-.Input {
-    margin: 20px;
+.Button {
+    margin: 33px;
+    padding: 10px 0px; 
+    width: 80%;
+    font-size: 10vmin;
+    border: solid #352200 4px;
+    border-radius: 15px;
+    color: #352200;
+    background-color: #fffae4;
 }
