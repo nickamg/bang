@@ -6,7 +6,7 @@ export default class LoginScreen extends Component {
         return (
             <div className="LoginScreen">
                 <form onSubmit={this.props.handleSubmit}>
-                    <label className="Label">
+                    <label>
                         What is your name?
                         <input 
                             autoFocus
@@ -16,6 +16,7 @@ export default class LoginScreen extends Component {
                             value={this.props.playerName} 
                             onChange={this.props.handleChange} />
                     </label>
+                    <button type="submit" className="Button">Continue</button>
                 </form>
             </div>
         )
