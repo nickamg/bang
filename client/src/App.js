@@ -1,13 +1,13 @@
 /* eslint-disable react/jsx-no-comment-textnodes */
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route, Redirect } from "react-router-dom";
-import './App.css';
 import io from 'socket.io-client';
 import LoginScreen from './LoginScreen/LoginScreen';
 import SelectionScreen from './SelectionScreen/SelectionScreen';
 import CreateScreen from './CreateScreen/CreateScreen';
 import JoinScreen from './JoinScreen/JoinScreen';
 import LobbyScreen from './LobbyScreen/LobbyScreen';
+import './App.css';
 
 class App extends Component {
   constructor(props) {

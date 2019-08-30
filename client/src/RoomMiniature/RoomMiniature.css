@@ -1,3 +1,22 @@
 .RoomMiniature {
+    width: 80%;
+    border: solid #352200 0.2em;
     cursor: pointer;
+    margin-bottom: 33px;
+    padding-bottom: 8px; 
+}
+
+.RoomMiniatureTitle {
+    font-size: 0.8em;
+    font-weight: 900;
+    margin: 0.3em 0px;
+}
+
+.RoomMiniatureText {
+    font-size: 0.3em;
+    margin: 0.5em 0px;
+}
+
+.RoomMiniatureNumber {
+    font-weight: 900;
 }

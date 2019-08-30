@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import RoomMiniature from '../RoomMiniature/RoomMiniature';
+import './JoinScreen.css'
 
 export default class JoinScreen extends Component {
     renderRooms = (rooms) => {
@@ -12,7 +13,7 @@ export default class JoinScreen extends Component {
 
     render() {
         return (
-            <div>
+            <div className="JoinScreen">
                 {this.renderRooms(this.props.rooms)}
             </div>
         )
