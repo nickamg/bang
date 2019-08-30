@@ -9,7 +9,7 @@ export default class LobbyScreen extends Component {
 
     render() {
         return (
-            <div className="LobbyScreen">
+            <div onClick={() => this.props.handlePlayerReady(this.props.roomName, this.props.player.playerReady)} className="LobbyScreen">
                 <h1>{this.props.roomName}</h1>
                 <LobbyPlayer player={this.props.player} />
                 {this.renderPlayers()}

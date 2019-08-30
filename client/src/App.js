@@ -16,6 +16,7 @@ class App extends Component {
       socket: io(),
       joinedRoom: false,
       loggedIn: false,
+      gameStarted: false,
       roomName: '',
       rooms: [],
       player: {
@@ -41,8 +42,9 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.listener('updateGameState', (state) => this.setState({ players: state.players }));
+    this.listener('updateGameState', (state) => this.setState({ player: state.player, players: state.players }));
     this.listener('listRooms', (rooms) => this.setState({ rooms }));
+    this.listener('startGame', (gameStarted) => this.setState({ gameStarted }));
     window.addEventListener('beforeunload', () => this.emitter('closingConnection', this.state.roomName));
   }
 
@@ -92,12 +94,8 @@ class App extends Component {
     this.setState({ roomName, joinedRoom: true }, () => this.emitter('joinRoom', this.state.roomName));
   }
 
-  /**
-   * Updates the component's state with the new rooms list.
-   * @returns [ room: { roomName, numPlayers } ]
-   */
-  updatePlayers = players => {
-    this.setState({ players })
+  handlePlayerReady = (roomName, playerReady) => {
+    this.emitter('playerReady', { roomName, playerReady });
   }
 
   /**
@@ -114,14 +112,6 @@ class App extends Component {
     }
   }
 
-  playerReady = () => {
-    
-  }
-
-  playerUnready = () => {
-    
-  }
-
   render() {
     return (
       <Router>
@@ -135,7 +125,7 @@ class App extends Component {
         <Route exact path="/join" render={() => this.renderScreen(this.state.joinedRoom, '/lobby',
           <JoinScreen rooms={this.state.rooms} joinRoom={this.handleJoinRoom} />
           )} />
-        <Route exact path="/lobby" render={() => <LobbyScreen roomName={this.state.roomName} players={this.state.players} player={this.state.player}/>} />
+        <Route exact path="/lobby" render={() => <LobbyScreen roomName={this.state.roomName} players={this.state.players} player={this.state.player} handlePlayerReady={this.handlePlayerReady}/>} />
         <Route exact path="/game" render={() => <LobbyScreen emitter={this.emitter} listener={this.listener} />} />
       </Router>
     );
