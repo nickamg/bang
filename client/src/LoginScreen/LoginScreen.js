@@ -6,7 +6,7 @@ export default class LoginScreen extends Component {
         return (
             <div className="LoginScreen">
                 <form onSubmit={this.props.handleSubmit}>
-                    <label>
+                    <label className="Label">
                         What is your name?
                         <input 
                             autoFocus

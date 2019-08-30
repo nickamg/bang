@@ -1,18 +1,19 @@
 import React, { Component } from 'react'
-import './LobbyScreen'
+import LobbyPlayer from '../LobbyPlayer/LobbyPlayer';
+import './LobbyScreen.css'
 
 export default class LobbyScreen extends Component {
     renderPlayers = () => {
-        return this.props.players.map((player) => <p>{player.playerName}</p>)
+        return this.props.players.map((player) => <LobbyPlayer player={player} />)
     }
 
     render() {
         return (
             <div className="LobbyScreen">
                 <h1>{this.props.roomName}</h1>
-                <p>{this.props.playerName}</p>
+                <LobbyPlayer player={this.props.player} />
                 {this.renderPlayers()}
-                <button>Listo</button>
+                <button className="Button">Listo</button>
             </div>
         )
     }

@@ -11,11 +11,16 @@
     text-align: center;
 }
 
+.Label {
+    font-weight: 900;
+}
+
 .Input {
-    margin-top: 20px;
+    margin-top: 33px;
     width: 80%;
-    font-size: 10vmin;
+    font-size: 1em;
     text-align: center;
+    color: #352200;
     caret-color: #352200;
     background-color: #fffae4;
     border: none;
@@ -29,8 +34,9 @@
     padding: 10px 0px; 
     width: 80%;
     font-size: 10vmin;
-    border: solid #352200 4px;
+    border: solid #352200 1em;
     border-radius: 15px;
     color: #352200;
     background-color: #fffae4;
+    font-weight: 900;
 }
