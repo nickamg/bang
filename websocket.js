@@ -180,9 +180,10 @@ function io(server) {
       }
     });
     if(start) {
-      console.log('ATENCION JOPUTA ' + io.sockets.adapter.rooms[data.roomName])
+      console.log('ATENCION JOPUTA ' + io.sockets.adapter.rooms[data.roomName]);
       io.sockets.adapter.rooms[data.roomName].hasStarted = true;
       io.in(data.roomName).emit('startGame', start);
+      listRooms();
     }
   }
 
