@@ -6,7 +6,7 @@ export default class CreateScreen extends Component {
         return (
             <div className="CreateScreen">
                 <form onSubmit={this.props.handleSubmit}>
-                    <label>
+                    <label className="Label">
                         What is the room's name going to be?
                         <input
                             autoFocus

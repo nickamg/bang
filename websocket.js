@@ -10,21 +10,8 @@ function io(server) {
     socket.on('addPlayer', addPlayer);
     socket.on('createRoom', createRoom);
     socket.on('joinRoom', joinRoom);
-    // If all players are ready, it will start the game
-    socket.on('playerReady', (roomName) => {
-      let start = true;
-      socket.playerReady = true;
-      getRoomPlayersState(roomName).forEach(element => {
-        if(!element.playerReady) {
-          start = false;
-        }
-      });
-      if(start) {
-        io.sockets.adapter.rooms[roomName].hasStarted = true;
-        socket.emit('startGame', start);
-      }
-    })
-    socket.on('closingConnection', closingConnection)
+    socket.on('playerReady', startGame);
+    socket.on('closingConnection', closingConnection);
   });
 
   /**
@@ -97,7 +84,7 @@ function io(server) {
   function getPlayableRooms() {
     let rooms = [];
     for (let room in io.sockets.adapter.rooms) {
-      if (io.sockets.adapter.rooms[room].isPlayable) {
+      if (io.sockets.adapter.rooms[room].isPlayable && !io.sockets.adapter.rooms[room].hasStarted) {
         rooms.push({
           roomName: room,
           numPlayers: io.sockets.adapter.rooms[room].length
@@ -180,6 +167,22 @@ function io(server) {
         io.to(socket).emit('updateGameState', gameData);
         players = [];
       }
+    }
+  }
+
+  function startGame(data) {
+    let start = true;
+    this.playerReady = !data.playerReady;
+    updateGameState(data.roomName);
+    getRoomPlayersState(data.roomName).forEach(player => {
+      if(!player.playerReady) {
+        start = false;
+      }
+    });
+    if(start) {
+      console.log('ATENCION JOPUTA ' + io.sockets.adapter.rooms[data.roomName])
+      io.sockets.adapter.rooms[data.roomName].hasStarted = true;
+      io.in(data.roomName).emit('startGame', start);
     }
   }
 

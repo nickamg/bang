@@ -1,0 +1,12 @@
+.Text {
+    width: 80%;
+    font-size: 0.5em;
+    padding: 0px;
+    margin: 0.3em 0px;
+    text-align: left;
+}
+
+.Text-RightAlignment {
+    font-weight: 300;
+    float: right;
+}
