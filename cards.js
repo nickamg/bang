@@ -1,5 +1,5 @@
 const bang = {
-    name: 'Bang',
+    name: 'bang',
     image: '/stillNoUri',
     effect: function(socket, targetPlayer) {
         if(targetPlayer.handCards.includes(fallaste)) {
@@ -11,7 +11,7 @@ const bang = {
 }
 
 const fallaste = {
-    name: 'Fallaste',
+    name: 'fallaste',
     image: '/stillNoUri'
 }
 
@@ -20,9 +20,44 @@ const cards = {
         bang,
         bang,
         bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
+        bang,
         fallaste,
         fallaste,
-        fallaste
+        fallaste,
+        fallaste,
+        fallaste,
+        fallaste,
+        fallaste,
+        fallaste,
+        fallaste,
+        fallaste,
+        fallaste,
+        fallaste,
+        fallaste,
+        fallaste,
+        fallaste,
     ],
     played: []
 }
+
+module.exports = cards;

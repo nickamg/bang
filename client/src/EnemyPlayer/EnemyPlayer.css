@@ -1,0 +1,22 @@
+.EnemyPlayer {
+    width: 80%;
+    border: solid #352200 0.2em;
+    cursor: pointer;
+    margin-bottom: 33px;
+    padding-bottom: 8px; 
+}
+
+.EnemyPlayerName {
+    font-size: .6em;
+    font-weight: 900;
+    margin: 0.3em 0px;
+}
+
+.EnemyPlayerText {
+    font-size: .3em;
+    margin: 0.5em 0px;
+}
+
+.EnemyPlayerText-Bold {
+    font-weight: 900;
+}

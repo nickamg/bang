@@ -7,6 +7,7 @@ import SelectionScreen from './SelectionScreen/SelectionScreen';
 import CreateScreen from './CreateScreen/CreateScreen';
 import JoinScreen from './JoinScreen/JoinScreen';
 import LobbyScreen from './LobbyScreen/LobbyScreen';
+import GameScreen from './GameScreen/GameScreen';
 import './App.css';
 
 class App extends Component {
@@ -28,8 +29,9 @@ class App extends Component {
           name: '',
           description: '',
         },
-        distance: 1,
+        distance: 0,
         viewDistance: 1,
+        baseDistance: 1,
         weapon: 0,
         handCards: [],
         playedCards: [],
@@ -125,8 +127,10 @@ class App extends Component {
         <Route exact path="/join" render={() => this.renderScreen(this.state.joinedRoom, '/lobby',
           <JoinScreen rooms={this.state.rooms} joinRoom={this.handleJoinRoom} />
           )} />
-        <Route exact path="/lobby" render={() => <LobbyScreen roomName={this.state.roomName} players={this.state.players} player={this.state.player} handlePlayerReady={this.handlePlayerReady}/>} />
-        <Route exact path="/game" render={() => <LobbyScreen emitter={this.emitter} listener={this.listener} />} />
+        <Route exact path="/lobby" render={() => this.renderScreen(this.state.gameStarted, '/game',        
+          <LobbyScreen roomName={this.state.roomName} players={this.state.players} player={this.state.player} handlePlayerReady={this.handlePlayerReady}/>
+          )} />
+        <Route exact path="/game" render={() => <GameScreen player={this.state.player} players={this.state.players} />} />
       </Router>
     );
   }
