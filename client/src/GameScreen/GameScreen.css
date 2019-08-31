@@ -10,3 +10,15 @@
     color: #352200;
     text-align: center;
 }
+
+.PlayerModule {
+    background-color: #fffae4;
+    width: 80%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10vmin;
+    color: #352200;
+    text-align: center;
+}
